@@ -8,7 +8,14 @@ const container = document.createElement('div');
 container.className = 'bees';
 fragment.append(container);
 
-const beesNum = Math.floor(viewportHeight / 12);
+let startLeft = 100;
+let beesNum = Math.floor(viewportHeight / 12);
+if(viewportWidth < 1000){
+	// mobile, start as early as we can, reduce number
+	startLeft = 0;
+	beesNum = Math.floor(beesNum / 4);
+}
+
 for(let i = 0; i < beesNum; i++){
 	const img = document.createElement('img');
 	img.src = 'https://nodecraft.com/assets/images/sales/spring-2021/icon.svg';
@@ -16,7 +23,7 @@ for(let i = 0; i < beesNum; i++){
 	img.width = '50';
 	img.classList.add('bee');
 	img.style.top = String(Math.floor(Math.random() * viewportHeight)) + 'px';
-	img.style.left = String(randomBetween(100, viewportWidth - 100)) + 'px';
+	img.style.left = String(randomBetween(startLeft, viewportWidth - 100)) + 'px';
 	img.style.height = String(Math.floor(randomBetween(20, 50))) + 'px';
 
 	// every 8 or so, animate
