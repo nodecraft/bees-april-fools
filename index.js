@@ -41,6 +41,23 @@ class ImageHandler {
 		}
 	}
 }
+
+class MetaHandler {
+	element(element){
+		// rewrite robots to ensure no indexing
+		const type = element.getAttribute('name');
+		if(type && type === 'robots'){
+			element.setAttribute('content', 'noindex, nofollow');
+			return;
+		}
+
+		// rewrite share URLs to make sure social links land on the right URL
+		const content = element.getAttribute('content');
+		if(content && content === 'https://nodecraft.com'){
+			element.setAttribute('content', 'https://bees.nodecraft.workers.dev');
+		}
+	}
+}
 // paths we're okay to add bees to
 const validPaths = [{
 	path: '/games',
@@ -98,7 +115,9 @@ async function handleRequest(request){
 		// handle our real script injection
 		const transformedRaw = new HTMLRewriter().on('body', new BodyHandler(nonce)).transform(nodecraft);
 		// rewrite images with resizing urls, since these don't work being proxieed
-		const transformed = new HTMLRewriter().on('img', new ImageHandler()).transform(transformedRaw);
+		const transformedImages = new HTMLRewriter().on('img', new ImageHandler()).transform(transformedRaw);
+		// rewrite meta tags
+		const transformed = new HTMLRewriter().on('meta', new MetaHandler()).transform(transformedImages);
 
 		// get headers and fix up CSP
 		const headers = new Headers(transformed.headers);
