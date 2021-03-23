@@ -1,0 +1,6 @@
+dist/**/*.js
+node_modules/**/*.js
+workers-site/node_modules/**/*.js
+workers-site/node_modules/**/*.json
+workers-site/worker/**/*.js
+worker/**/*.js

@@ -1,0 +1,4 @@
+name = "bees"
+type = "webpack"
+account_id = "41b5b64401b71d9b659efded061166c7"
+workers_dev = true
