@@ -1,7 +1,8 @@
 import srcset from 'srcset';
 
-import beeCss from 'raw-loader!postcss-loader!./bees.css';
-import beeJs from 'raw-loader!terser-loader!./bees.js';
+// import bees style and script for injecting, as raw minimised strings
+import beeCss from 'raw-loader!postcss-loader!./assets/bees.css';
+import beeJs from 'raw-loader!terser-loader!./assets/bees.js';
 
 class BodyHandler {
 	constructor(nonce){
@@ -14,6 +15,7 @@ class BodyHandler {
 	}
 }
 
+// this handles rewriting of `/cdn-cgi` image src/srcset attributes since these can't be proxied in a worker
 const imageResizeRegex = /^\/cdn-cgi\/image\/(?:[A-Za-z]+=[\dA-Za-z]+,?)+\/(.*)/;
 class ImageHandler {
 	element(element){
@@ -27,14 +29,15 @@ class ImageHandler {
 
 		const srcsetVal = element.getAttribute('srcset');
 		if(srcsetVal && srcsetVal.includes('/cdn-cgi')){
-			const parsed = srcset.parse(srcsetVal);
-			for(const image of parsed){
+			// quick and dirty override for all srcset images. Not a perfect solution, but good enough for this joke
+			const updatedImages = srcset.parse(srcsetVal).map((image) => {
 				const test = imageResizeRegex.exec(image.url);
 				if(test && test[1]){
 					image.url = test[1];
 				}
-			}
-			element.setAttribute('srcset', srcset.stringify(parsed));
+				return image;
+			});
+			element.setAttribute('srcset', srcset.stringify(updatedImages));
 		}
 	}
 }
@@ -99,18 +102,25 @@ async function handleRequest(request){
 
 		// get headers and fix up CSP
 		const headers = new Headers(transformed.headers);
+
+		// add our JS nonce for the bees script, and manipulate a few other directives to not break things
 		const CSP = headers.get('Content-Security-Policy');
 		let newCSP = CSP.replace('script-src', 'script-src \'nonce-' + nonce + '\'');
 		newCSP = newCSP.replace('default-src', 'default-src nodecraft.com');
 		newCSP = newCSP.replace('img-src', 'img-src nodecraft.com');
 		newCSP = newCSP.replace('font-src', 'font-src nodecraft.com');
 		headers.set('Content-Security-Policy', newCSP);
+
+		// we really don't want this page indexed
 		headers.set('X-Robots-Tag', 'noindex, nofollow');
+
 		return new Response(await transformed.text(), {
 			headers: headers
 		});
 	}
-	return fetch(url);
+
+	// otherwise pass through requests (JS/CSS assets, etc.)
+	return nodecraft;
 }
 
 addEventListener('fetch', (event) => {
