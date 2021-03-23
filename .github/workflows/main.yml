@@ -35,8 +35,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     needs: test
-    # only run if in master. If repository_dispatch always run, else if `schedule` or `push`, only run if not skipping CI
-    if: github.ref == 'refs/heads/master' && (github.event_name == 'repository_dispatch' || (github.event_name == 'schedule' || github.event_name == 'push') && (!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]')))
+    # only run if in main. If repository_dispatch always run, else if `schedule` or `push`, only run if not skipping CI
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'repository_dispatch' || (github.event_name == 'schedule' || github.event_name == 'push') && (!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]')))
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
