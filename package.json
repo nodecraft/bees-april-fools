@@ -11,7 +11,7 @@
 		"type": "git",
 		"url": "git+https://github.com/nodecraft/bees-april-fools.git"
 	},
-	"license": "UNLICENSED",
+	"license": "MIT",
 	"author": "Nodecraft Inc.",
 	"main": "index.js",
 	"scripts": {
