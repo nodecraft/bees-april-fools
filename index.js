@@ -133,7 +133,7 @@ async function handleRequest(request){
 		// we really don't want this page indexed
 		headers.set('X-Robots-Tag', 'noindex, nofollow');
 
-		return new Response(await transformed.text(), {
+		return new Response(await transformed.body, {
 			headers: headers
 		});
 	}
